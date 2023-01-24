@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask, request
 import json
 from mock_data import catalog
-
+from config import db
 
 app = Flask("server")
 
@@ -21,59 +21,77 @@ def about():
 
 @app.get("/api/version")
 def version():
-    version = {
-        "V":"V.1.0.1",
-        "name":"Candy_firewall",
-        "yourzip": "your",
-    }
-    return json.dumps(version)
+ return "test"
 
 
 @app.get("/api/catalog")
 def get_catalog():
+    cursor = db.products.find({})
+    results = []
+    for prod in cursor:
+        prod["_id"] = str(prod["_id"]) # fix _id issue
+        results.append(prod)
+    
+    return json.dumps(results)
 
-    return json.dumps(catalog)
+# save products
+@app.post("/api/catalog")
+def save_product():
+    product = request.get_json()
+    db.products.insert_one(product)
+
+    product["_id"] = str(product["_id"]) # clean the ObjectId('asd') from the obj
+
+    return json.dumps(product)
+
 
 @app.get("/api/catalog/<category>")
 def get_by_category(category):
-    result = []
-    for prod in catalog:
-        if prod["category"].lower() == category.lower():
-            result.append(prod)
+    cursor =db.products.find({"category": category})
+    results = []
+    for prod in cursor:
+            prod["_id"] = str(prod["_id"])
+            results.append(prod)
 
-    return json.dumps(result)
+    return json.dumps(results)
 
 @app.get("/api/catalog/search/<title>")
 def search_by_title(title):
-    result = []
-    for prod in catalog:
-        if title.lower() in prod["title"].lower():
-            result.append(prod)
+    cursor =db.products.find({"title": {"$regex": title, "$options": "i"} })
+    results = []
+    for prod in cursor:
+            prod["_id"] = str(prod["_id"])
+            results.append(prod)
 
-    return json.dumps(result)
+    return json.dumps(results)
+
 
 @app.get("/api/product/cheaper/<price>")
 def search_by_price(price):
+    cursor = db.products.find({})
     result = []
     for prod in catalog:
         if prod["price"] < float(price):
+            prod["_id"] = str(prod["_id"])
             result.apend(prod)
 
     return json.dumps(result)
 
 @app.get("/api/product/count")
 def count_products():
-    count = len(catalog)
+    count = db.products.count_documents({})
     return json.dumps(count)
 
 
 @app.get("/api/product/cheapest")
 def get_cheapest():
-    answer = catalog[0]
-    for prod in catalog:
+    cursor = db.products.find({})
+    answer = cursor[0]
+    for prod in cursor:
         if prod["price"] < answer["price"]:
             answer = prod
 
+    answer["_id"] = str(prod["_id"])
     return json.dumps(answer)
 
 

@@ -11,7 +11,7 @@ catalog = [
         "price": 699.99,
         "catagory":"Iphone",
         "image":"iphone-12-pro.jpg"
-     },
+      },
 
      {
         "title": "Apple Watch ",
@@ -52,9 +52,8 @@ catalog = [
         "title":" Google Pixel 2",
         "price": 499.99,
         "catagory": "Google",
-        "image": "google-pixel-2.jpg"
+       "image": "google-pixel-2.jpg"
+   
      },
-
-
 ]
    

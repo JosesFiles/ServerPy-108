@@ -1,2 +1,7 @@
 activate the virtual environment:
 venv\Scripts\activate
+
+python3 server.py
+
+ctrl C to copy
+ctrl V to paste
